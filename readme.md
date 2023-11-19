@@ -1,19 +1,18 @@
-# A simple docker container around wd-tagger-v1.4 
-Based on https://huggingface.co/spaces/SmilingWolf/wd-v1-4-tags
+# wd-tagger-v1.4 docker container
+基于 https://huggingface.co/spaces/SmilingWolf/wd-v1-4-tags
 
-Leverages the GPU by using NVIDIA Container Toolkit.
+该项目支持GPU-CUDA和CPU两个版本
 
-
-## Setup
+## 安装
 ```
 git clone https://github.com/Melanpan/wd-tagger-docker.git
-cp Dockerfile-nocuda DockerFile (or Dockerfile-cuda if you want to use Cuda)
+cp Dockerfile-nocuda Dockerfile (如果你需要用 CUDA ，那么将此处 Dockerfile-nocuda 替换成 Dockerfile-cuda)
 docker build -t wdtagger .
-docker run --rm -p 8005:8000 wdtagger (Cuda: docker run --rm --gpus all -p 8005:8000 wdtagger)
+docker run --rm -p 8005:8000 wdtagger (如果你需要用 CUDA 那么使用命令: docker run --rm --gpus all -p 8005:8000 wdtagger)
 ```
 
 
-### Docker compose example (without GPU acceleration):
+### Docker编写示例 (仅用CPU):
 ```yaml
 services:
     tagger:
@@ -27,7 +26,7 @@ services:
            - ./cache:/cache
    
 ```
-### Docker compose example (with GPU acceleration):
+### Docker编写示例 (使用GPU):
 ```yaml
 services:
     tagger:
@@ -49,15 +48,15 @@ services:
 
          
 ```
-## Environment variables
+## 环境变量
 
 | Name              | Default   | Explanation
 |---                |---        |---
-|MODEL              |SWIN       | The model to use, choose between MOAT, SWIN, CONV, CONV2 and VIT.
-|USE_CUDA           |1          | Set to 0 to disable GPU acceleration.
-|GENERAL_THRESHOLD  |0.35      | Only general tags with this value or above are returned to the client
-|CHARACTER_THRESHOLD|0.85       | Only character tags with this value or above are returned to the client
-|CACHE_PATH         |/tmp/model_cache|Location where to save the models, useful if you don't want to constantly redownload the models.
+|MODEL              |SWIN       | 使用的模型型号，可在MOAT、SWIN、CONV、CONV2和VIT之间选择。
+|USE_CUDA           |1          | 设置为0可禁用GPU加速。
+|GENERAL_THRESHOLD  |0.35      | 只有具有此值或更高值的常规标记才会返回给客户端
+|CHARACTER_THRESHOLD|0.85       | 只有此值或以上的字符标记才会返回给客户端
+|CACHE_PATH         |/tmp/model_cache|保存模型的位置，可以避免不断地重新下载模型。
 |MOAT_MODEL_REPO    |SmilingWolf/wd-v1-4-moat-tagger-v2|Hugging face repo for the moat model.
 |SWIN_MODEL_REPO    |SmilingWolf/wd-v1-4-swinv2-tagger-v2|Hugging face repo for the swinv2 model.
 |CONV_MODEL_REPO    |SmilingWolf/wd-v1-4-convnext-tagger-v2|Hugging face repo for the convnext model.
@@ -65,7 +64,7 @@ services:
 |VIT_MODEL_REPO     |SmilingWolf/wd-v1-4-vit-tagger-v2|Hugging face repo for the vit model.
 
 
-## Usage    
+## 使用案例    
 ```bash
 melan@gpu ~> curl -s -F "image=@aris.png" http://localhost:8005/predict | jq
 {
@@ -116,3 +115,8 @@ melan@gpu ~> curl -s -F "image=@aris.png" http://localhost:8005/predict | jq
   }
 }
 ```
+
+## 注意
+如果无限返回
+`[WARNING] Worker with pid [a certain number] was terminated due to signal [another number]....`
+大概率是当前服务器内存不足。
